@@ -113,6 +113,20 @@ def drop_xxxwav_rows(df: pd.DataFrame) -> pd.DataFrame:
     return df.loc[~mask].copy()
 
 
+def drop_trial_separator_rows(df: pd.DataFrame) -> pd.DataFrame:
+    """Remove trial-separator rows.
+
+    In all-vocalizations.xlsx each trial/interaction ends with a separator row that
+    holds only the recording filename (first column); all acoustic feature columns
+    are empty. These rows are not calls. If retained, mean imputation turns them into
+    artificial 'average' calls. Here, the first column is excluded and only rows with
+    at least one non-missing feature value are kept.
+    """
+    feature_cols = [c for c in df.columns[1:] if c not in ("group", "sheet", "season",
+                                                              "net_group", "plot_label", "year")]
+    return df.dropna(subset=feature_cols, how="all").copy()
+
+
 # ---------------- FIGURE EXPORT ----------------
 def save_figure(fig: plt.Figure, out_base: Path, *, dpi: int = 300) -> dict:
     out_base = Path(out_base)
@@ -208,9 +222,11 @@ def rf_alarm23_vs_social(xls: pd.ExcelFile) -> dict:
     for sheet in selected_sheets:
         df = xls.parse(sheet)
         df = drop_xxxwav_rows(df)
+        df = drop_trial_separator_rows(df)   # FIX: separator rows are not calls
         df["group"] = "alarm" if sheet in sheets_alarm_23 else "social"
         df_list.append(df)
     df_rf = pd.concat(df_list, ignore_index=True)
+    print("Class counts (calls):", df_rf["group"].value_counts().to_dict())
 
     features = [
         c for c in df_rf.select_dtypes(include="number").columns
@@ -307,6 +323,7 @@ def _load_alarm_rows(xls: pd.ExcelFile, sheets: list) -> pd.DataFrame:
     for sh in sheets:
         df = xls.parse(sh)
         df = drop_xxxwav_rows(df)
+        df = drop_trial_separator_rows(df)   # FIX: separator rows are not calls
         df["sheet"]     = sh
         df["season"]    = _season(sh)
         df["net_group"] = _label_net_group(sh)

@@ -8,7 +8,8 @@ start, bandwidth at call end, maximum fundamental frequency) — identified on t
 dataset — generalize to the independent 2022 colony.
 
 Two analyses are run:
-  1. Full imbalanced dataset (alarm n=1647, social n=473) with permutation test (n=1000).
+  1. Full imbalanced dataset (alarm n=1629, social n=456) with permutation test (n=1000).
+     (Trial-separator rows are removed before analysis; see drop_trial_separator_rows.)
   2. 100× balanced downsampling loop (alarm downsampled to match social n) to confirm
      results are not driven by class imbalance.
 
@@ -104,6 +105,20 @@ def is_amp_feature(name: str) -> bool:
 def drop_xxxwav_rows(df: pd.DataFrame) -> pd.DataFrame:
     mask = df.apply(lambda row: row.astype(str).str.contains("xxx.wav", na=False)).any(axis=1)
     return df.loc[~mask].copy()
+
+
+def drop_trial_separator_rows(df: pd.DataFrame) -> pd.DataFrame:
+    """Remove trial-separator rows.
+
+    In all-vocalizations.xlsx each trial/interaction ends with a separator row that
+    holds only the recording filename (first column); all acoustic feature columns
+    are empty. These rows are not calls. If retained, mean imputation turns them into
+    artificial 'average' calls. Here, the first column is excluded and only rows with
+    at least one non-missing feature value are kept.
+    """
+    feature_cols = [c for c in df.columns[1:] if c not in ("group", "sheet", "season",
+                                                              "net_group", "plot_label", "year")]
+    return df.dropna(subset=feature_cols, how="all").copy()
 
 
 def save_figure(fig: plt.Figure, out_base: Path, *, dpi: int = 300) -> dict:
@@ -316,11 +331,11 @@ def main():
     # Load data
     rows = []
     for sh in ALARM_22_SHEETS:
-        df = drop_xxxwav_rows(xls.parse(sh))
+        df = drop_trial_separator_rows(drop_xxxwav_rows(xls.parse(sh)))   # FIX
         df["group"] = "alarm"
         rows.append(df)
     for sh in social_22:
-        df = drop_xxxwav_rows(xls.parse(sh))
+        df = drop_trial_separator_rows(drop_xxxwav_rows(xls.parse(sh)))   # FIX
         df["group"] = "social"
         rows.append(df)
 

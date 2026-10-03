@@ -87,6 +87,20 @@ def alarm_label(sheet):
     return f"no-net({year})" if "no-net" in sheet.lower() else f"net({year})"
 
 
+def drop_trial_separator_rows(df: pd.DataFrame) -> pd.DataFrame:
+    """Remove trial-separator rows.
+
+    In all-vocalizations.xlsx each trial/interaction ends with a separator row that
+    holds only the recording filename (first column); all acoustic feature columns
+    are empty. These rows are not calls. If retained, mean imputation turns them into
+    artificial 'average' calls. Here, the first column is excluded and only rows with
+    at least one non-missing feature value are kept.
+    """
+    feature_cols = [c for c in df.columns[1:] if c not in ("group", "sheet", "season",
+                                                              "net_group", "plot_label", "year")]
+    return df.dropna(subset=feature_cols, how="all").copy()
+
+
 def base_social(sheet):
     for b in SOCIAL_BASE:
         if sheet == b or sheet == f"{b}(22)":
@@ -113,6 +127,7 @@ def load_all_data(xlsx):
     for sheet in xls.sheet_names:
         df = xls.parse(sheet)
         df = df[~df.apply(lambda r: r.astype(str).str.contains("xxx.wav"), axis=1).any(axis=1)]
+        df = drop_trial_separator_rows(df)   # FIX: separator rows are not calls
         if is_social(sheet):
             group, label = "social", sheet
         elif is_alarm(sheet):
@@ -125,7 +140,9 @@ def load_all_data(xlsx):
         rows.append(df)
     if not rows:
         raise ValueError("No valid social/alarm sheets were found.")
-    return pd.concat(rows, ignore_index=True)
+    out = pd.concat(rows, ignore_index=True)
+    print("Calls in PCA:", len(out), out["group"].value_counts().to_dict())
+    return out
 
 
 def run_pca(df, out_path, ellipse_scale=ELLIPSE_SCALE):
