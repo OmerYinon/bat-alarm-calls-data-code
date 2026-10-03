@@ -90,7 +90,9 @@ tables/reduced48_potential9_assignments.csv
     All include permutation tests (n = 1,000) for empirical chance estimation.
     Output: outputs/rf_2023/
 
-small_colony/
+bat_alarm_signature_pipeline.py, subcluster_within_primary_clusters.py,
+reduced_feature_reanalysis.py, reduced_48_subcluster_analysis.py
+
     Code for the small-colony acoustic-structure analysis (Methods 5.6):
     call segmentation and clustering pipeline (hierarchical clustering,
     Gaussian mixture models, HDBSCAN, silhouette permutation tests,
