@@ -3,9 +3,9 @@
 =======================
 Random Forest classifier — 2022 cross-year generalization test (Figure 1C, Methods §5.3).
 
-Tests whether the three SHAP-identified acoustic features (minimum frequency at call
-start, bandwidth at call end, maximum fundamental frequency) — identified on the 2023
-dataset — generalize to the independent 2022 colony.
+Tests whether the three focal acoustic features (minimum frequency at call start,
+bandwidth at call end, maximum fundamental frequency) — selected from the informative
+features of the 2023 model — generalize to the independent 2022 colony.
 
 Two analyses are run:
   1. Full imbalanced dataset (alarm n=1629, social n=456) with permutation test (n=1000).
@@ -74,7 +74,7 @@ SOCIAL_22_CANDIDATES = ["food(22)", "territorial(22)", "unknown(22)"]
 # Amplitude/level-proxy features excluded (same filter as PCA script)
 PREFIXES_AMP = ("amp", "ampli", "ample", "amplit", "amplitude")
 
-# Restrict to the 3 SHAP-identified features from the 2023 model (Methods §5.3)
+# Restrict to the 3 focal features selected from the 2023 model (Methods §5.3)
 FORCE_3_FEATURES = True
 
 # Column-matching rules (case-insensitive): must contain ALL listed substrings
@@ -179,7 +179,7 @@ def build_features(df: pd.DataFrame) -> pd.DataFrame:
 
         X = X[[col_min, col_bw, col_f0]].copy()
         X.columns = ["min_freq_start", "bandw_end", "fundamental_max"]
-        print("Using 3 SHAP-identified features:", list(X.columns))
+        print("Using 3 focal features:", list(X.columns))
 
     return X
 
