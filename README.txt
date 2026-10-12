@@ -28,6 +28,10 @@ were not removed and were mean-imputed as if they were calls. The revised
 scripts remove them (function drop_trial_separator_rows) before any
 analysis. All numbers in the revised manuscript were produced with the
 revised scripts. Scripts 03 and 04 were not affected.
+In addition, call start and end time (time stamps of each call within the
+30-s recording, not acoustic measures) are excluded from the "Net" vs
+"No-Net" classifiers in script 05 (RF #2-#5), so that these classifiers
+use acoustic structure only (Methods 5.4).
 
 ----------------------------------------------------------------------
 FILES
@@ -89,6 +93,7 @@ reduced48_potential9_assignments.csv
       RF#4 - Net vs No-Net, Pooled 2022+2023
       RF#5 - Season 2022 Net vs All Other Alarm (text result)
     All include permutation tests (n = 1,000) for empirical chance estimation.
+    RF #2-#5 exclude call start and end time (see Revision note).
     Output: outputs/rf_2023/
 
 bat_alarm_signature_pipeline.py
