@@ -32,6 +32,8 @@ In addition, call start and end time (time stamps of each call within the
 30-s recording, not acoustic measures) are excluded from the "Net" vs
 "No-Net" classifiers in script 05 (RF #2-#5), so that these classifiers
 use acoustic structure only (Methods 5.4).
+Script 06 was added in revision to test whether call rate declined over
+the course of the experiments (habituation; Methods 5.5).
 
 ----------------------------------------------------------------------
 FILES
@@ -96,6 +98,15 @@ reduced48_potential9_assignments.csv
     RF #2-#5 exclude call start and end time (see Revision note).
     Output: outputs/rf_2023/
 
+06_habituation_callrate_over_days.py
+    Test for habituation (Reviewer 2, comment 2.20; Methods 5.5): linear
+    regression of log(calls per trial + 1) on experimental day, with
+    condition ("Net"/"No-Net") as covariate, for daytime trials of each
+    colony. One 2023 trial whose filename date (2023-10-24) lies outside
+    the experimental period is excluded.
+    Reported in the Discussion and the response to reviewers.
+    Output: outputs/habituation/
+
 bat_alarm_signature_pipeline.py
 subcluster_within_primary_clusters.py
 reduced_48_subcluster_analysis.py
@@ -110,7 +121,7 @@ reduced_feature_reanalysis.py
 HOW TO RUN
 ----------------------------------------------------------------------
 1. Install dependencies (Python 3.9+):
-   pip install numpy pandas matplotlib scikit-learn shap scipy seaborn openpyxl
+   pip install numpy pandas matplotlib scikit-learn shap scipy seaborn openpyxl statsmodels
 
 2. Place all-vocalizations.xlsx in the same folder as the scripts.
 
@@ -120,6 +131,7 @@ HOW TO RUN
    python 03_ttest_callrate_and_acoustic_features.py
    python 04_supp_fig3_tiny_colony_pca.py
    python 05_RF_2023_alarm_vs_social.py  # ~15 min (5 x permutation test n=1000)
+   python 06_habituation_callrate_over_days.py
 
 All outputs are saved to subfolders under outputs/.
 
@@ -135,6 +147,7 @@ shap          0.41+
 scipy         1.10+
 seaborn       0.12+
 openpyxl      3.1+
+statsmodels   0.13+
 
 ----------------------------------------------------------------------
 DATA COLLECTION
